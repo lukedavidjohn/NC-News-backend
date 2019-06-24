@@ -6,15 +6,66 @@ describe('formatDate', () => {
         expect(formatDate([])).to.eql([])
     })
     it('returns array of one SQL timestamp reformatted as JS date-object', () => {
-        expect(formatDate(['2019-06-24 16:25:53.629092+01'])).to.eql([1561334400000])
+        const input = [{
+            body:
+            "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+            belongs_to: "They're not exactly dogs, are they?",
+            created_by: 'butter_bridge',
+            votes: 16,
+            created_at: 1511354163389,
+        }];
+        expect(formatDate(input)).to.eql(['Wed Nov 22 2017 12:36:03 GMT+0000 (Greenwich Mean Time)'])
     })
     it('works for multiple date-objects', () => {
-        expect(formatDate(['2019-06-24 16:25:53.629092+01', '2019-06-24 16:25:53.629092+01'])).to.eql([1561334400000, 1561334400000])
+        const input = [{
+            body:
+            "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+            belongs_to: "They're not exactly dogs, are they?",
+            created_by: 'butter_bridge',
+            votes: 16,
+            created_at: 1511354163389,
+        },{
+            body:
+            "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+            belongs_to: "They're not exactly dogs, are they?",
+            created_by: 'butter_bridge',
+            votes: 16,
+            created_at: 1511354163389,
+        }]
+        expect(formatDate(input)).to.eql(['Wed Nov 22 2017 12:36:03 GMT+0000 (Greenwich Mean Time)', 'Wed Nov 22 2017 12:36:03 GMT+0000 (Greenwich Mean Time)'])
     })
     it('does not mutate the original array', () => {
-        const input = []
+        const input = [{
+            body:
+            "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+            belongs_to: "They're not exactly dogs, are they?",
+            created_by: 'butter_bridge',
+            votes: 16,
+            created_at: 1511354163389,
+        },{
+            body:
+            "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+            belongs_to: "They're not exactly dogs, are they?",
+            created_by: 'butter_bridge',
+            votes: 16,
+            created_at: 1511354163389,
+        }]
         formatDate(input)
-        expect(input).to.eql([])
+        expect(input).to.eql([{
+            body:
+            "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+            belongs_to: "They're not exactly dogs, are they?",
+            created_by: 'butter_bridge',
+            votes: 16,
+            created_at: 1511354163389,
+        },{
+            body:
+            "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+            belongs_to: "They're not exactly dogs, are they?",
+            created_by: 'butter_bridge',
+            votes: 16,
+            created_at: 1511354163389,
+        }])
     })
 })
 
