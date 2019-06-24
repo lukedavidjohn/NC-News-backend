@@ -1,5 +1,12 @@
-exports.formatDate = list => {};
+const formatDate = list => {
+    if (!list.length) return [];
+    const workList = list.map(ele => new Date(ele.split('').slice(0,10).join('')));
+    return workList.map(ele => ele.getTime());
+};
 
-exports.makeRefObj = list => {};
+const makeRefObj = list => {};
 
-exports.formatComments = (comments, articleRef) => {};
+const formatComments = (comments, articleRef) => {};
+
+module.exports = {formatDate, makeRefObj, formatComments}
+
