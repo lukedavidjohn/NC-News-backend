@@ -7,4 +7,4 @@ const dataConfig = {
     test
 }
 
-module.exports - dataConfig[ENV];
+module.exports = dataConfig[ENV];
