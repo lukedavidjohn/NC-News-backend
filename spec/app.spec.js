@@ -36,11 +36,11 @@ describe('/api', () => {
                 expect(body.username).to.equal('lurker')
             })
         })
-        it('GET by username - returns status 404 if passed invalid username', () => {
+        it('GET by username - returns status 404 if passed non-existing username', () => {
             return request.get('/api/users/smirker')
             .expect(404)
             .then(({body}) => {
-                expect(body.msg).to.equal('username not found')
+                expect(body.msg).to.equal('not found')
             })
         })
     })
@@ -62,13 +62,20 @@ describe('/api', () => {
                     expect(body.comment_count).to.equal('13')
                 })
         })
-        it('GET by article_id - returns status 404 if passed invalid article_id', () => {
+        it('GET by article_id - returns status 400 if passed invalid article_id', () => {
             return request
-                .get('/api/articles/999999')
-                .expect(404)
+                .get('/api/articles/ninetynine')
+                .expect(400)
                 .then(({body}) => {
-                    expect(body.msg).to.equal('username not found')
+                    expect(body.msg).to.equal('bad request')
                 })
+        })
+        it('GET by article_id - returns status 404 if passed non-existing article_id', () => {
+            return request.get('/api/articles/999999')
+            .expect(404)
+            .then(({body}) => {
+                expect(body.msg).to.equal('not found')
+            })
         })
         it('PATCH by article_id - returns status 200', () => {
             return request
@@ -84,28 +91,66 @@ describe('/api', () => {
                     expect(body.votes).to.equal(101)
                 })
         })
-        it('PATCH by article_id - returns status 404 if passed invalid article_id', () => {
+        it('PATCH by article_id - returns status 400 if passed invalid article_id', () => {
+            return request
+                .patch('/api/articles/ninetynine')
+                .send({votes: 1})
+                .expect(400)
+                .then(({body}) => {
+                    expect(body.msg).to.equal('bad request')
+                })
+        })
+        it('PATCH by article_id - returns status 400 if passed invalid update value', () => {
+            return request
+                .patch('/api/articles/1')
+                .send({votes: 'death'})
+                .expect(400)
+                .then(({body}) => {
+                    expect(body.msg).to.equal('bad request')
+                })
+        })
+        it('PATCH by article_id - returns status 400 if passed no update value', () => {
+            return request
+                .patch('/api/articles/1')
+                .send({})
+                .expect(400)
+                .then(({body}) => {
+                    expect(body.msg).to.equal('bad request')
+                })
+        })
+        it('PATCH by article_id - returns status 404 if passed non-existing article_id', () => {
             return request
                 .patch('/api/articles/999999')
                 .send({votes: 1})
                 .expect(404)
                 .then(({body}) => {
-                    expect(body.msg).to.equal('username not found')
+                    expect(body.msg).to.equal('not found')
                 })
         })
     })
-    // describe('/comments', () => {
-    //     it('POST by article_id - returns status 200', () => {
-    //         return request
-    //             .post('/api/articles/1')
-    //             .send({
-    //                 author: 'butter_bridge',
-    //                 article_id: 1,
-    //                 votes: 1000000,
-    //                 body: 'here is some text, here is some text'
-    //             })
-    //             .expect(200)
-
-    //     })
-    // })
+    describe('/articles/:article_id/comments', () => {
+        it('POST by article_id - returns status 201', () => {
+            return request
+                .post('/api/articles/1/comments')
+                .send({
+                    author: 'butter_bridge',
+                    article_id: 1, // need to pass this in through req.params
+                    body: 'here is some text, here is some text'
+                })
+                .expect(201)
+                .then(({body}) => {
+                    expect(body[0].comment_id).to.equal(19)
+                })
+        })
+        // it('POST by article_id - returns status 400 if passed non-existing article_id', () => {
+        //     return request
+        //         .post('/api/articles/999/comments')
+        //         .send({
+        //             author: 'butter_bridge',
+        //             article_id: 999,
+        //             body: 'here is some text, here is some text'
+        //         })
+        //         .expect(400)
+        // })
+    })
 })
