@@ -6,7 +6,7 @@ const { topicsRouter } = require('./topicsRouter');
 const { usersRouter } = require('./usersRouter')
 
 apiRouter.use('/articles', articlesRouter)
-apiRouter.use('/articles/:articleId/comments', commentsRouter)
+apiRouter.use('/articles/:article_id/comments', commentsRouter)
 apiRouter.use('/topics', topicsRouter)
 apiRouter.use('/users', usersRouter)
 
