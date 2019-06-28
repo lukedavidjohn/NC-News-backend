@@ -1,9 +1,10 @@
 const { connection } = require("../../db/connection");
 
-exports.fetchCommentsByArticleId = ({ article_id }) => {
+exports.fetchCommentsByArticleId = (article_id, sort_by, order) => {
     return connection('comments')
         .select('*')
         .where({ article_id })
+        .orderBy((sort_by || 'created_at'), order)
 }
 
 exports.postCommentByArticleId = (article_id, newComment) => {

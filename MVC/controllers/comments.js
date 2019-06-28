@@ -1,11 +1,17 @@
 const { fetchCommentsByArticleId, postCommentByArticleId } = require('../models/comments')
 
 exports.sendCommentsByArticleId = (req, res, next) => {
-    fetchCommentsByArticleId(req.params)
-        .then(comments => {
-            console.log(comments)
-            res.status(200).send(comments)
+    const {article_id} = req.params;
+    const {sort_by, order} = req.query;
+    fetchCommentsByArticleId(article_id, sort_by, order)
+        .then(comments => {  
+            if (comments.length === 0) {
+                return Promise.reject({status: 404, msg: "not found"})
+            } else {
+                res.status(200).send({ comments })
+            }
         })
+        .catch(next)
 }
 
 exports.newCommentByArticleId = (req, res, next) => {

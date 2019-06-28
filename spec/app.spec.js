@@ -1,6 +1,8 @@
 process.env.NODE_ENV = 'test'
 const { app } = require("../app");
-const { expect } = require("chai");
+const chai = require("chai");
+const expect = chai.expect
+chai.use(require('chai-sorted'))
 const request = require("supertest")(app);
 const { connection } = require("../db/connection");
 
@@ -70,7 +72,7 @@ describe('/api', () => {
                     expect(body.msg).to.equal('bad request')
                 })
         })
-        it('GET by article_id - returns status 404 if passed non-existing article_id', () => {
+        it('GET by article_id - returns status 404 if passed valid but non-existing article_id', () => {
             return request.get('/api/articles/999999')
                 .expect(404)
                 .then(({body}) => {
@@ -103,7 +105,7 @@ describe('/api', () => {
         it('PATCH by article_id - returns status 400 if passed invalid update value', () => {
             return request
                 .patch('/api/articles/1')
-                .send({votes: 'death'})
+                .send({votes: 'cheese'})
                 .expect(400)
                 .then(({body}) => {
                     expect(body.msg).to.equal('bad request')
@@ -118,7 +120,7 @@ describe('/api', () => {
                     expect(body.msg).to.equal('bad request')
                 })
         })
-        it('PATCH by article_id - returns status 404 if passed non-existing article_id', () => {
+        it('PATCH by article_id - returns status 404 if passed valid but non-existing article_id', () => {
             return request
                 .patch('/api/articles/999999')
                 .send({votes: 1})
@@ -137,12 +139,41 @@ describe('/api', () => {
         it('GET by article_id - returns array of comment-objects with correct keys', () => {
             return request 
                 .get('/api/articles/1/comments')
-                .then(({body}) => {
-                    expect(body[0]).to.contain.keys('author', 'body')
-                    expect(body.length).to.equal(13)
+                .then(({body: {comments}}) => {
+                    expect(comments[0]).to.contain.keys('author', 'body')
+                    expect(comments.length).to.equal(13)
                 })
         })
-
+        it('GET by article_id - has a default sort order of "created_by"', () => {
+            return request
+                .get('/api/articles/1/comments')
+                .then(({body: {comments}}) => {
+                    expect(comments).to.be.ascendingBy('created_at')
+                })
+        })
+        it('GET by article_id - sort column and order can be determined by query', () => {
+            return request
+                .get('/api/articles/1/comments?sort_by=author&order=desc')
+                .then(({body: {comments}}) => {
+                    expect(comments).to.be.descendingBy('author')
+                })
+        })
+        it('GET by article_id - returns status 400 if passed invalid article_id', () => {
+            return request
+                .get('/api/articles/cheese/comments')
+                .expect(400)
+                .then(({body}) => {
+                    expect(body.msg).to.equal('bad request')
+                })
+        })
+        it('GET by article_id - returns status 404 if passed valid but non-existing article_id', () => {
+            return request 
+                .get('/api/articles/999999/comments')
+                .expect(404)
+                .then(({body}) => {
+                    expect(body.msg).to.equal('not found')
+                })
+        })
         it('POST by article_id - returns status 201', () => {
             return request
                 .post('/api/articles/1/comments')
@@ -168,21 +199,9 @@ describe('/api', () => {
                 expect(body.body).to.equal('here is some text, here is some text')
                 })
         })
-        it('POST by article_id - returns status 422 if passed valid but non-existing article_id', () => {
-            return request
-                .post('/api/articles/999/comments')
-                .send({
-                    author: 'butter_bridge',
-                    body: 'here is some text, here is some text'
-                })
-                .expect(422)
-                .then(({body: {msg}}) => {
-                    expect(msg).to.equal('unprocessable entity')
-                })
-        })
         it('POST by article_id - returns status 400 if passed invalid article_id', () => {
             return request
-                .post('/api/articles/death/comments')
+                .post('/api/articles/cheese/comments')
                 .send({
                     author: 'butter_bridge',
                     body: 'here is some text, here is some text'
@@ -197,7 +216,7 @@ describe('/api', () => {
         })
         it('POST by article_id - returns status 400 if passed post content with required column missing', () => {
             return request
-                .post('/api/articles/death/comments')
+                .post('/api/articles/cheese/comments')
                 .send({
                     body: 'here is some text, here is some text'
                 })
@@ -205,13 +224,25 @@ describe('/api', () => {
         })
         it('POST by article_id - returns status 400 if passed post content with non-existing column', () => {
             return request
-                .post('/api/articles/death/comments')
+                .post('/api/articles/cheese/comments')
                 .send({
                     author: 'butter_bridge',
                     body: 'here is some text, here is some text',
                     goodness: 0
                 })
                 .expect(400)
+        })
+        it('POST by article_id - returns status 422 if passed valid but non-existing article_id', () => {
+            return request
+                .post('/api/articles/999/comments')
+                .send({
+                    author: 'butter_bridge',
+                    body: 'here is some text, here is some text'
+                })
+                .expect(422)
+                .then(({body: {msg}}) => {
+                    expect(msg).to.equal('unprocessable entity')
+                })
         })
     })
 })
