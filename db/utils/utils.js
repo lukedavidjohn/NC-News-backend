@@ -14,12 +14,11 @@ const makeRefObj = (list) => {
 ;
 
 const formatComments = (comments, articleRef) => {
-    const workingComments = comments.map(ele => Object.assign({}, ele))
-    return workingComments.map(ele => ({
+    return comments.map(ele => ({
         body: ele.body,
         article_id: articleRef[ele.belongs_to],
         author: ele.created_by,
-        votes: 16,
+        votes: ele.votes,
         created_at: new Date(ele.created_at)
     }))
 };

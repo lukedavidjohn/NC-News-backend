@@ -1,10 +1,10 @@
 const express = require("express");
 const commentsRouter = express.Router({mergeParams: true});
-const { sendCommentsByArticleId, newCommentByArticleId } = require('../MVC/controllers/comments')
+const { updateComment } = require('../MVC/controllers/comments')
 
 commentsRouter
-    .route('/')
-    .get(sendCommentsByArticleId)
-    .post(newCommentByArticleId)
+    .route('/:comment_id')
+    .patch(updateComment)
+    
 
 module.exports = { commentsRouter }

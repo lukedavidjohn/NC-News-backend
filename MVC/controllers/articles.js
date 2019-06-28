@@ -1,4 +1,37 @@
-const { fetchArticleById, patchArticleById } = require('../models/articles');
+const { fetchArticles, fetchArticleById, patchArticleById } = require('../models/articles');
+
+exports.sendArticles = (req, res, next) => {
+    const { sort_by, order, author, topic } = req.query;
+    let sort_column = sort_by
+    if(sort_by !== undefined) {
+        sort_column = sort_by.toLowerCase()
+    }
+    let sort_order = order
+    if(order !== undefined) {
+        sort_order = order.toLowerCase()
+    }
+    let filter_author = author;
+    if (author !== undefined) {
+        filter_author = author.toLowerCase()
+    } else {
+        filter_author = '%'
+    };
+    let filter_topic = topic;
+    if (topic !== undefined) {
+        filter_topic = topic.toLowerCase()
+    } else {
+        filter_topic = '%'
+    }
+    fetchArticles(sort_column, sort_order, filter_author, filter_topic)
+        .then(articles => {
+            if (!Object.keys(articles).length) {
+                return Promise.reject({status: 404, msg: "not found"})
+            } else {
+            res.status(200).send(articles)
+            }
+        })
+    .catch(next)
+}
 
 exports.sendArticleById = (req, res, next) => {
     fetchArticleById(req.params)
