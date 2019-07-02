@@ -27,7 +27,7 @@ exports.sendArticles = (req, res, next) => {
             if (!Object.keys(articles).length) {
                 return Promise.reject({status: 404, msg: "not found"})
             } else {
-            res.status(200).send(articles)
+            res.status(200).send({articles})
             }
         })
     .catch(next)
@@ -39,7 +39,7 @@ exports.sendArticleById = (req, res, next) => {
             if (articles.length === 0) {
                 return Promise.reject({status: 404, msg: "not found"})
             } else {
-                res.status(200).send(articles[0])
+                res.status(200).send({article: articles[0]})
             }
         })
     .catch(next)
@@ -56,7 +56,7 @@ exports.updateArticleById = (req, res, next) => {
                 return fetchArticleById({article_id: articles[0].article_id}) 
             }
         }).then((articles) => {
-            res.status(200).send(articles[0])
+            res.status(200).send({article: articles[0]})
         })
         .catch(next)
 }

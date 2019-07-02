@@ -1,4 +1,4 @@
-const { fetchCommentsByArticleId, postCommentByArticleId, patchComment } = require('../models/comments')
+const { fetchCommentsByArticleId, postCommentByArticleId, patchCommentById, deleteCommentById } = require('../models/comments')
 
 exports.sendCommentsByArticleId = (req, res, next) => {
     const {article_id} = req.params;
@@ -22,25 +22,35 @@ exports.sendCommentsByArticleId = (req, res, next) => {
         .catch(next)
 }
 
-exports.newCommentByArticleId = (req, res, next) => {
+exports.createCommentByArticleId = (req, res, next) => {
     const {article_id} = req.params
     const newComment = req.body;
     postCommentByArticleId(article_id, newComment)
         .then(comments => {
-                if (!Object.keys(newComment).length) {
-                    return Promise.reject({status: 400, msg: 'bad request'})
-                } else {
-                    res.status(201).send(comments[0])
-                }
+            res.status(201).send({comment: comments[0]})
         })
         .catch(next)
 }
 
-exports.updateComment = (req, res, next) => {
+exports.updateCommentById = (req, res, next) => {
     const { comment_id } = req.params;
     const { inc_votes } = req.body
-    patchComment(comment_id, inc_votes)
-        .then((comment) => {
-            res.status(200).send({comment: comment[0]})
+    patchCommentById(comment_id, inc_votes)
+        .then((comments) => {
+            if (!comments.length) {
+                return Promise.reject({status: 404, msg: 'not found'})
+            } else {
+                res.status(200).send({comment: comments[0]})
+            }
         })
+        .catch(next)
+}
+
+exports.removeCommentById = (req, res, next) => {
+    const { comment_id } = req.params;
+    deleteCommentById(comment_id)
+        .then(() => {
+            res.sendStatus(204)
+        })
+        .catch(next)
 }

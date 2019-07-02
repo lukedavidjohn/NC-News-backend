@@ -5,21 +5,18 @@ const formatDate = list => {
 };
 
 const makeRefObj = (list) => {
-    const output = {}
-    list.map(ele => {
-        output[ele.title] = ele.article_id
-    })
-    return output
-}
-;
+    return list.reduce((acc, cur)=>{
+        acc[cur.title] = cur.article_id
+        return acc
+    },{})
+};
 
 const formatComments = (comments, articleRef) => {
-    return comments.map(ele => ({
-        body: ele.body,
-        article_id: articleRef[ele.belongs_to],
-        author: ele.created_by,
-        votes: ele.votes,
-        created_at: new Date(ele.created_at)
+    return comments.map(({created_at, created_by, belongs_to, ...rest}) => ({
+        article_id: articleRef[belongs_to],
+        author: created_by,
+        created_at: new Date(created_at),
+        ...rest,
     }))
 };
 

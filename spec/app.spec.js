@@ -13,37 +13,80 @@ describe('/api', () => {
     after(() => {
         connection.destroy();
     })
+    it('GET - returns status 200', () => {
+        return request
+            .get('/api')
+            .expect(200)
+    })
+    it('returns 405 for all other methods', () => {
+        const invalidMethods = ['delete', 'patch', 'post', 'put'];
+        const methodPromises = invalidMethods.map(method => {
+            return request[method]('/api')
+                .expect(405)
+                .then(({body}) => {
+                    expect(body.msg).to.equal('method not allowed')
+                })
+            })
+        return Promise.all(methodPromises)
+    })
     describe('/topics', () => {
         it('GET - returns status 200', () => {
-            return request.get('/api/topics').expect(200);
+            return request
+            .get('/api/topics')
+            .expect(200);
         })
-        it('GET - returns an array of topic-objects with correct keys', () => {
-            return request.get('/api/topics').then(({body}) => {
-                expect(body.topics).to.be.an('array');
-                expect(body.topics.length).to.be.greaterThan(0);
-                expect(body.topics[0]).to.contain.keys('slug', 'description');
+        it('GET - returns an array of topic-objects with expected keys', () => {
+            return request
+                .get('/api/topics')
+                .then(({body}) => {
+                    expect(body.topics).to.be.an('array');
+                    expect(body.topics.length).to.be.greaterThan(0);
+                    expect(body.topics[0]).to.contain.keys('slug', 'description');
             })
+        })
+        it('returns 405 for all other methods', () => {
+            const invalidMethods = ['delete', 'patch', 'post', 'put'];
+            const methodPromises = invalidMethods.map(method => {
+                return request[method]('/api/topics')
+                    .expect(405)
+                    .then(({body}) => {
+                        expect(body.msg).to.equal('method not allowed')
+                    })
+                })
+            return Promise.all(methodPromises)
         })
     })
     describe('/users', () => {
         it('GET by username - returns status 200', () => {
-            return request.get('/api/users/lurker')
+            return request
+                .get('/api/users/lurker')
                 .expect(200);
         })
-        it('GET by username - returns a user-object with correct keys', () => {
+        it('GET by username - returns a user-object with expected keys', () => {
             return request.get('/api/users/lurker')
                 .then(({body}) => {
-                expect(body).to.be.an('object');
-                expect(body).to.contain.keys('username', 'avatar_url', 'name');
-                expect(body.username).to.equal('lurker')
+                    expect(body.user).to.be.an('object');
+                    expect(body.user).to.contain.keys('username', 'avatar_url', 'name');
+                    expect(body.user.username).to.equal('lurker')
             })
         })
         it('GET by username - returns status 404 if passed non-existing username', () => {
             return request.get('/api/users/smirker')
-            .expect(404)
-            .then(({body}) => {
-                expect(body.msg).to.equal('not found')
-            })
+                .expect(404)
+                .then(({body}) => {
+                    expect(body.msg).to.equal('not found')
+                })
+        })
+        it('returns 405 for all other methods', () => {
+            const invalidMethods = ['delete', 'patch', 'post', 'put'];
+            const methodPromises = invalidMethods.map(method => {
+                return request[method]('/api/users/smirker')
+                    .expect(405)
+                    .then(({body}) => {
+                        expect(body.msg).to.equal('method not allowed')
+                    })
+                })
+            return Promise.all(methodPromises)
         })
     })
     describe('/articles', () => {
@@ -52,54 +95,61 @@ describe('/api', () => {
                 .get('/api/articles')
                 .expect(200)
         })
-        it('GET - returns an array of article-objects with correct keys, with added comment_count column', () => {
+        it('GET - returns an array of article-objects with expected keys, with added comment_count column', () => {
             return request
                 .get('/api/articles')
                 .then(({body}) => {
-                    expect(body[0]).to.contain.keys('title', 'body', 'topic', 'author', 'comment_count')
-                    expect(body[0].comment_count).to.equal('13')
+                    expect(body.articles[0]).to.contain.keys('title', 'body', 'topic', 'author', 'comment_count')
+                    expect(body.articles[0].comment_count).to.equal('13')
                 })
         })
         it('GET - has a default sort column of "created_at" and order of "desc"', () => {
             return request
                 .get('/api/articles')
                 .then(({body}) => {
-                    expect(body).to.be.descendingBy('created_at')
+                    expect(body.articles).to.be.descendingBy('created_at')
                 })
         })
         it('GET - sort column and order can be determined by query', () => {
             return request
                 .get('/api/articles?sort_by=topic&order=asc')
                 .then(({body}) => {
-                    expect(body).to.be.ascendingBy('topic')
+                    expect(body.articles).to.be.ascendingBy('topic')
                 })
         })
         it('GET - sorting is case-insensitive', () => {
             return request
                 .get('/api/articles?sort_by=TOPIC&order=ASC')
                 .then(({body}) => {
-                    expect(body).to.be.ascendingBy('topic')
+                    expect(body.articles).to.be.ascendingBy('topic')
                 })
         })
         it('GET - can be filtered by author', () => {
             return request
                 .get('/api/articles?author=butter_bridge')
                 .then(({body}) => {
-                    expect(body.length).to.equal(3)
+                    expect(body.articles.length).to.equal(3)
                 })
         })
         it('GET - author filter is case-insensitive', () => {
             return request
                 .get('/api/articles?author=BUTTER_BRIDGE')
                 .then(({body}) => {
-                    expect(body.length).to.equal(3)
+                    expect(body.articles.length).to.equal(3)
                 })
         })
         it('GET - can be filtered by topic', () => {
             return request
                 .get('/api/articles?topic=cats')
                 .then(({body}) => {
-                    expect(body.length).to.equal(1)
+                    expect(body.articles.length).to.equal(1)
+                })
+        })
+        it('GET - topic filter is case-insensitive', () => {
+            return request
+                .get('/api/articles?topic=CATS')
+                .then(({body}) => {
+                    expect(body.articles.length).to.equal(1)
                 })
         })
         it('GET - returns status 400 if passed invalid sort column', () => {
@@ -134,6 +184,17 @@ describe('/api', () => {
                     expect(body.msg).to.equal('not found')
                 })
         })
+        it('returns 405 for all other methods', () => {
+            const invalidMethods = ['delete', 'patch', 'post', 'put'];
+            const methodPromises = invalidMethods.map(method => {
+                return request[method]('/api/articles')
+                    .expect(405)
+                    .then(({body}) => {
+                        expect(body.msg).to.equal('method not allowed')
+                    })
+                })
+            return Promise.all(methodPromises)
+        })
     })
     describe('/articles/:article_id', () => {
         it('GET by article_id - returns status 200', () => {
@@ -141,16 +202,15 @@ describe('/api', () => {
                 .get('/api/articles/1')
                 .expect(200);
         })
-        it('GET by article_id - returns an article-object with correct keys, with added comment_count column', () => {
+        it('GET by article_id - returns an article-object with expected keys, with added comment_count column', () => {
             return request
                 .get('/api/articles/1')
                 .then(({body}) => {
-                    expect(body).to.be.an('object');
-                    expect(body).to.contain.keys('title', 'body', 'votes'
-                    , 'comment_count'
+                    expect(body.article).to.be.an('object');
+                    expect(body.article).to.contain.keys('title', 'body', 'votes', 'topic', 'author', 'comment_count'
                     );
-                    expect(body.title).to.equal('Living in the shadow of a great man')
-                    expect(body.comment_count).to.equal('13')
+                    expect(body.article.title).to.equal('Living in the shadow of a great man')
+                    expect(body.article.comment_count).to.equal('13')
                 })
         })
         it('GET by article_id - returns status 400 if passed invalid article_id', () => {
@@ -174,13 +234,12 @@ describe('/api', () => {
                 .send({votes: 1})
                 .expect(200)
         })
-        // it returns updated comment
-        it('PATCH by article_id - updates value accordingly', () => {
+        it('PATCH by article_id - updates value accordingly and returns comment-object', () => {
             return request
                 .patch('/api/articles/1')
                 .send({votes: 1})
                 .then(({body}) => {
-                    expect(body.votes).to.equal(101)
+                    expect(body.article.votes).to.equal(101)
                 })
         })
         it('PATCH by article_id - returns status 400 if passed invalid article_id', () => {
@@ -219,6 +278,17 @@ describe('/api', () => {
                     expect(body.msg).to.equal('not found')
                 })
         })
+        it('returns 405 for all other methods', () => {
+            const invalidMethods = ['delete', 'post', 'put'];
+            const methodPromises = invalidMethods.map(method => {
+                return request[method]('/api/articles/1')
+                    .expect(405)
+                    .then(({body}) => {
+                        expect(body.msg).to.equal('method not allowed')
+                    })
+                })
+            return Promise.all(methodPromises)
+        })
     })
     describe('/articles/:article_id/comments', () => {
         it('GET by article_id - returns status 200', () => {
@@ -226,33 +296,33 @@ describe('/api', () => {
                 .get('/api/articles/1/comments')
                 .expect(200)
         })
-        it('GET by article_id - returns array of comment-objects with correct keys', () => {
+        it('GET by article_id - returns array of comment-objects with expected keys', () => {
             return request 
                 .get('/api/articles/1/comments')
-                .then(({body: {comments}}) => {
-                    expect(comments[0]).to.contain.keys('author', 'body')
-                    expect(comments.length).to.equal(13)
+                .then(({body}) => {
+                    expect(body.comments[0]).to.contain.keys('author', 'body')
+                    expect(body.comments.length).to.equal(13)
                 })
         })
         it('GET by article_id - has a default sort column of "created_by" and order of "asc"', () => {
             return request
                 .get('/api/articles/1/comments')
-                .then(({body: {comments}}) => {
-                    expect(comments).to.be.ascendingBy('created_at')
+                .then(({body}) => {
+                    expect(body.comments).to.be.ascendingBy('created_at')
                 })
         })
         it('GET by article_id - sort column and order can be determined by query', () => {
             return request
                 .get('/api/articles/1/comments?sort_by=author&order=desc')
-                .then(({body: {comments}}) => {
-                    expect(comments).to.be.descendingBy('author')
+                .then(({body}) => {
+                    expect(body.comments).to.be.descendingBy('author')
                 })
         })
         it('GET by article_id - sorting is case-insensitive', () => {
             return request
                 .get('/api/articles/1/comments?sort_by=AUTHOR&order=DESC')
-                .then(({body: {comments}}) => {
-                    expect(comments).to.be.descendingBy('author')
+                .then(({body}) => {
+                    expect(body.comments).to.be.descendingBy('author')
                 })
         })
         it('GET by article_id - returns status 400 if passed invalid article_id', () => {
@@ -304,12 +374,12 @@ describe('/api', () => {
                 body: 'here is some text, here is some text'
             })
             .then(({body}) => {
-                expect(body.comment_id).to.equal(19)
-                expect(body.author).to.equal("butter_bridge")
-                expect(body.article_id).to.equal(1)
-                expect(body.votes).to.equal(0)
-                expect(body.created_at).to.not.be.null
-                expect(body.body).to.equal('here is some text, here is some text')
+                expect(body.comment.comment_id).to.equal(19)
+                expect(body.comment.author).to.equal("butter_bridge")
+                expect(body.comment.article_id).to.equal(1)
+                expect(body.comment.votes).to.equal(0)
+                expect(body.comment.created_at).to.not.be.null
+                expect(body.comment.body).to.equal('here is some text, here is some text')
                 })
         })
         it('POST by article_id - returns status 400 if passed invalid article_id', () => {
@@ -357,8 +427,19 @@ describe('/api', () => {
                     expect(msg).to.equal('unprocessable entity')
                 })
         })
+        it('returns 405 for all other methods', () => {
+            const invalidMethods = ['delete', 'patch', 'put'];
+            const methodPromises = invalidMethods.map(method => {
+                return request[method]('/api/articles/1/comments')
+                    .expect(405)
+                    .then(({body}) => {
+                        expect(body.msg).to.equal('method not allowed')
+                    })
+                })
+            return Promise.all(methodPromises)
+        })
     })
-    describe.only('/comments', () => {
+    describe('/comments', () => {
         it('PATCH by comment_id - returns status 200', () => {
             return request
                 .patch('/api/comments/1')
@@ -367,8 +448,7 @@ describe('/api', () => {
                 })
                 .expect(200)
         })
-        // it returns updated comment
-        it('PATCH by comment_id - updates values accordingly', () => {
+        it('PATCH by comment_id - updates values accordingly and returns comment-object', () => {
             return request
                 .patch('/api/comments/1')
                 .send({
@@ -377,6 +457,56 @@ describe('/api', () => {
                 .then(({body}) => {
                     expect(body.comment.votes).to.equal(17)
                 })
+        })
+        it('PATCH by comment_id - returns status 400 if passed invalid comment_id', () => {
+            return request
+                .patch('/api/comments/ninetynine')
+                .send({
+                    inc_votes: 1
+                })
+                .expect(400)
+                .then(({body}) => {
+                    expect(body.msg).to.equal('bad request')
+                })
+        })
+        it('PATCH by comment_id - returns status 400 if passed invalid update value', () => {
+            return request
+                .patch('/api/comments/1')
+                .send({
+                    inc_votes: 'cheese'
+                })
+                .expect(400)
+                .then(({body}) => {
+                    expect(body.msg).to.equal('bad request')
+                })
+        })
+        // 'PATCH by article_id - returns status 400 if passed no update value'
+        it('PATCH by comment_id - returns status 404 if passed valid but non-existing article_id', () => {
+            return request
+                .patch('/api/comments/999')
+                .send({
+                    inc_votes: 1
+                })
+                .expect(404)
+                .then(({body}) => {
+                    expect(body.msg).to.equal('not found')
+                })
+        })
+        it('DELETE by comment_id - returns status 204', () => {
+            return request
+                .delete('/api/comments/1')
+                .expect(204)
+        })
+        it('returns 405 for all other methods', () => {
+            const invalidMethods = ['get', 'post', 'put'];
+            const methodPromises = invalidMethods.map(method => {
+                return request[method]('/api/comments/1')
+                    .expect(405)
+                    .then(({body}) => {
+                        expect(body.msg).to.equal('method not allowed')
+                    })
+                })
+            return Promise.all(methodPromises)
         })
     })
 })

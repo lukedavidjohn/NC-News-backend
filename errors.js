@@ -15,12 +15,16 @@ exports.handle400errors = (err, req, res, next) => {
 }
 
 exports.handlePsql400errors = (err, req, res, next) => {
-    const psqlErrorCodes = ['22P02', '23503', '42703'];
+    const psqlErrorCodes = ['22P02', '23502', '23503', '42703'];
     if (psqlErrorCodes.includes(err.code)) {
         res.status(400).send({msg: 'bad request'})
     } else {
         next(err)
     }
+}
+
+exports.handle405error = (req, res, next) => {
+    res.status(405).send({msg: 'method not allowed'})
 }
 
 exports.handle500errors = (err, req, res, next) => {
