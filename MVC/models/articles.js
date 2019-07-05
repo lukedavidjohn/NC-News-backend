@@ -1,5 +1,11 @@
 const { connection } = require("../../db/connection");
 
+exports.checkArticleIdExists = article_id => {
+    return connection('articles')
+        .select('article_id')
+        .where({article_id})
+}
+
 exports.fetchArticles = (sort_column, sort_order, filter_author, filter_topic) => {
     if (sort_order === 'asc' || sort_order === 'desc' || sort_order === undefined) {
         return connection('articles')
@@ -26,10 +32,16 @@ exports.fetchArticleById = ({article_id}) => {
 }
 
 exports.patchArticleById = (update_id, update_value) => {
-    return connection('articles')
-       .where({article_id: update_id})
-       .increment({
-           votes: update_value
-       })
-       .returning('*')
+    if (!update_value) {
+        return connection('articles')
+            .select('*')
+            .where({article_id: update_id})
+    } else {
+        return connection('articles')
+        .where({article_id: update_id})
+        .increment({
+            votes: update_value
+        })
+        .returning('*')
+    }
 }

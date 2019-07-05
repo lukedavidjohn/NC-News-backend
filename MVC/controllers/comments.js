@@ -1,23 +1,20 @@
-const { fetchCommentsByArticleId, postCommentByArticleId, patchCommentById, deleteCommentById } = require('../models/comments')
+const { checkCommentIdExists, fetchCommentsByArticleId, postCommentByArticleId, patchCommentById, deleteCommentById } = require('../models/comments')
+const { checkArticleIdExists } = require('../models/articles')
 
 exports.sendCommentsByArticleId = (req, res, next) => {
-    const {article_id} = req.params;
-    const {sort_by, order} = req.query;
-    let sort_column = sort_by
-    if(sort_by !== undefined) {
-        sort_column = sort_by.toLowerCase()
-    }
-    let sort_order = order
-    if(order !== undefined) {
-        sort_order = order.toLowerCase()
-    }
-    fetchCommentsByArticleId(article_id, sort_column, sort_order)
-        .then(comments => {
-            if (comments.length === 0) {
-                return Promise.reject({status: 404, msg: "not found"})
-            } else {
-                res.status(200).send({ comments })
-            }
+    let {article_id} = req.params;
+    let {sort_by, order} = req.query;
+    if (sort_by !== undefined) sort_by = sort_by.toLowerCase()
+    if (order !== undefined) order = order.toLowerCase()
+    checkArticleIdExists(article_id)
+        .then(articles => {
+            if (articles.length) {
+                fetchCommentsByArticleId(article_id, sort_by, order)
+                .then(comments => {
+                    res.status(200).send({ comments })
+                })
+                .catch(next)
+            } else return Promise.reject({status: 404, msg: "not found"})
         })
         .catch(next)
 }
@@ -48,9 +45,15 @@ exports.updateCommentById = (req, res, next) => {
 
 exports.removeCommentById = (req, res, next) => {
     const { comment_id } = req.params;
-    deleteCommentById(comment_id)
-        .then(() => {
-            res.sendStatus(204)
+    checkCommentIdExists(comment_id)
+        .then(comments => {
+            if(comments.length) {
+                deleteCommentById(comment_id)
+                    .then(() => {
+                        res.sendStatus(204)
+                    })
+                    .catch(next)
+            } else return Promise.reject({status: 404, msg: 'not found'})
         })
         .catch(next)
 }

@@ -5,17 +5,10 @@ const { commentsRouter } = require('./commentsRouter')
 const { topicsRouter } = require('./topicsRouter');
 const { usersRouter } = require('./usersRouter')
 const { handle405error } = require('../errors')
-
-const fetchEndpoints = () => {
-
-}
+const endpoints = require('../endpoints.json')
 
 const sendEndpoints = (req, res, next) => {
-    res.sendFile()
-        .then(endpoints => {
-            res.status(200).send(endpoints)
-        })
-        .catch(next)
+    res.status(200).send({endpoints: {endpoints}})
 }
 
 apiRouter

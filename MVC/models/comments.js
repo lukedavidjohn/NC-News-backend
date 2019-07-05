@@ -1,11 +1,19 @@
 const { connection } = require("../../db/connection");
 
+exports.checkCommentIdExists = comment_id => {
+    return connection('comments')
+        .select("comment_id")
+        .where({comment_id})
+}
+
+// check comment id exists dont run delete if it doesnt
+
 exports.fetchCommentsByArticleId = (article_id, sort_by, sort_order) => {
     if (sort_order === 'asc' || sort_order === 'desc' || sort_order === undefined) {
         return connection('comments')
             .select('*')
             .where({ article_id })
-            .orderBy((sort_by || 'created_at'), (sort_order || 'ASC'))
+            .orderBy((sort_by || 'created_at'), (sort_order || 'DESC'))
         } else {
             return Promise.reject({status: 400, msg: "bad request"})
         }
@@ -21,7 +29,7 @@ exports.postCommentByArticleId = (article_id, newComment) => {
             } else {
                 return connection('comments')
                     .insert({
-                        author: newComment.author,
+                        author: newComment.username,
                         article_id,
                         body: newComment.body
                     })
@@ -31,12 +39,18 @@ exports.postCommentByArticleId = (article_id, newComment) => {
 }
 
 exports.patchCommentById = (comment_id, inc_votes) => {
-    return connection('comments')
-        .where({comment_id})
-        .increment({
-            votes: inc_votes
-        })
-        .returning('*')
+    if (!inc_votes) {
+        return connection('comments')
+            .select('*')
+            .where({comment_id})
+    } else {
+        return connection('comments')
+            .where({comment_id})
+            .increment({
+                votes: inc_votes
+            })
+            .returning('*')
+        }
 }
 
 exports.deleteCommentById = (comment_id) => {
