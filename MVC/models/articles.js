@@ -6,8 +6,9 @@ exports.checkArticleIdExists = article_id => {
         .where({article_id})
 }
 
-exports.fetchArticles = (sort_column, sort_order, filter_author, filter_topic) => {
+exports.fetchArticles = (sort_column, sort_order, filter_author, filter_topic, limit_to, page) => {
     if (sort_order === 'asc' || sort_order === 'desc' || sort_order === undefined) {
+        let offset = (page - 1) * limit_to
         return connection('articles')
             .select('articles.*')
             .count({comment_count: 'articles.article_id'})
@@ -15,7 +16,10 @@ exports.fetchArticles = (sort_column, sort_order, filter_author, filter_topic) =
             .andWhere('articles.topic', 'like', filter_topic)
             .leftJoin('comments', 'comments.article_id', '=', 'articles.article_id')    
             .groupBy('articles.article_id')
-            .orderBy(sort_column || 'articles.created_at', sort_order || 'desc')
+            .orderBy(
+                sort_column || 'articles.created_at', sort_order || 'desc')
+            .limit(limit_to)
+            .offset(offset)
     } else {
         return Promise.reject({status: 400, msg: "bad request"})
     }

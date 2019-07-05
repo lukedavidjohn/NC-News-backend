@@ -13,12 +13,12 @@ describe('/api', () => {
     after(() => {
         connection.destroy();
     })
-    it.only('GET - returns status 200', () => {
+    it('GET - returns status 200', () => {
         return request
             .get('/api')
             .expect(200)
     })
-    it.only('GET - responds with a JSON of all available endpoints', () => {
+    it('GET - responds with a JSON of all available endpoints', () => {
         return request
             .get('/api')
             .then(({body}) => {
@@ -159,6 +159,36 @@ describe('/api', () => {
                     expect(body.articles.length).to.equal(1)
                 })
         })
+        it('GET articles - has a default response limit of 10 articles', () => {
+            return request 
+                .get('/api/articles')
+                .then(({body}) => {
+                    expect(body.articles.length).to.equal(10)
+                })
+        })
+        it('GET articles - response limit can be determined by query', () => {
+            return request 
+                .get('/api/articles?limit=5')
+                .then(({body}) => {
+                    expect(body.articles.length).to.equal(5)
+                })
+        })
+        it('GET articles - paginates results when number of responses exceeds limit and p value provided', () => {
+            return request
+                .get('/api/articles?p=2')
+                .then(({body}) => {
+                    expect(body.articles.length).to.equal(2)
+                    expect(body.articles[0].article_id).to.equal(11)
+                })
+        })
+        it('GET articles - paginates properly with non-default limit value', () => {
+            return request
+                .get('/api/articles?limit=5&p=3')
+                .then(({body}) => {
+                    expect(body.articles.length).to.equal(2)
+                    expect(body.articles[0].article_id).to.equal(11)
+                })
+        })
         it('GET articles - returns status 400 if passed invalid sort column', () => {
             return request
                 .get('/api/articles?sort_by=cheese&order=asc')
@@ -297,7 +327,7 @@ describe('/api', () => {
             return Promise.all(methodPromises)
         })
     })
-    describe('/articles/:article_id/comments', () => {
+    describe.only('/articles/:article_id/comments', () => {
         it('GET comments by article_id - returns status 200', () => {
             return request
                 .get('/api/articles/1/comments')
@@ -308,7 +338,6 @@ describe('/api', () => {
                 .get('/api/articles/1/comments')
                 .then(({body}) => {
                     expect(body.comments[0]).to.contain.keys('author', 'body')
-                    expect(body.comments.length).to.equal(13)
                 })
         })
         it('GET comments by article_id - has a default sort column of "created_by" and order of "desc"', () => {
@@ -338,6 +367,36 @@ describe('/api', () => {
                 .expect(200)
                 .then(({body}) => {
                     expect(body.comments).to.eql([])
+                })
+        })
+        it('GET comments by article_id - has a default response limit of 10 comments', () => {
+            return request
+                .get('/api/articles/1/comments')
+                .then(({body}) => {
+                    expect(body.comments.length).to.equal(10)
+                }) //13
+        })
+        it('GET comments by article_id - response limit can be determined by query', () => {
+            return request
+                .get('/api/articles/1/comments?limit=5')
+                .then(({body}) => {
+                    expect(body.comments.length).to.equal(5)
+                })
+        })
+        it('GET articles - paginates results when number of responses exceeds limit', () => {
+            return request
+                .get('/api/articles/1/comments?p=2')
+                    .then(({body}) => {
+                        expect(body.comments.length).to.equal(3)
+                        expect(body.comments[0].comment_id).to.equal(12)
+                    })
+        })
+        it('GET articles - paginates properly with non-default limit value', () => {
+            return request
+                .get('/api/articles/1/comments?limit=5&p=3')
+                .then(({body}) => {
+                    expect(body.comments.length).to.equal(3)
+                    expect(body.comments[0].comment_id).to.equal(12)
                 })
         })
         it('GET comments by article_id - returns status 400 if passed invalid article_id', () => {

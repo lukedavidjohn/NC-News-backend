@@ -6,14 +6,15 @@ exports.checkCommentIdExists = comment_id => {
         .where({comment_id})
 }
 
-// check comment id exists dont run delete if it doesnt
-
-exports.fetchCommentsByArticleId = (article_id, sort_by, sort_order) => {
+exports.fetchCommentsByArticleId = (article_id, sort_by, sort_order, limit_to, page) => {
     if (sort_order === 'asc' || sort_order === 'desc' || sort_order === undefined) {
+        let offset = (page - 1) * limit_to
         return connection('comments')
             .select('*')
             .where({ article_id })
             .orderBy((sort_by || 'created_at'), (sort_order || 'DESC'))
+            .limit(limit_to)
+            .offset(offset)
         } else {
             return Promise.reject({status: 400, msg: "bad request"})
         }

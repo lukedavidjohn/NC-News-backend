@@ -3,13 +3,14 @@ const { checkArticleIdExists } = require('../models/articles')
 
 exports.sendCommentsByArticleId = (req, res, next) => {
     let {article_id} = req.params;
-    let {sort_by, order} = req.query;
+    let {sort_by, order, limit, p} = req.query;
     if (sort_by !== undefined) sort_by = sort_by.toLowerCase()
     if (order !== undefined) order = order.toLowerCase()
+    if (limit === undefined) limit = 10;
     checkArticleIdExists(article_id)
         .then(articles => {
             if (articles.length) {
-                fetchCommentsByArticleId(article_id, sort_by, order)
+                fetchCommentsByArticleId(article_id, sort_by, order, limit, p)
                 .then(comments => {
                     res.status(200).send({ comments })
                 })
