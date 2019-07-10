@@ -131,6 +131,18 @@ describe('/api', () => {
     })
     describe('/users', () => {
         // GET users
+        it('GET users - returns status 200', () => {
+            return request
+                .get('/api/users')
+                .expect(200)
+        })
+        it('GET users - returns an array of user-objects with expected keys', () => {
+            return request
+                .get('/api/users')
+                .then(({body})=> {
+                    expect(body.users[0]).to.contain.keys('username', 'avatar_url', 'name')
+                })
+        })
         it('POST user - returns status 201', () => {
             return request
                 .post('/api/users')
@@ -205,8 +217,6 @@ describe('/api', () => {
             })  
         })
     })
-
-
     describe('/users/:username', () => {
         it('GET users by username - returns status 200', () => {
             return request
@@ -231,7 +241,7 @@ describe('/api', () => {
         it('returns 405 for all other methods', () => {
             const invalidMethods = ['delete', 'patch', 'put'];
             const methodPromises = invalidMethods.map(method => {
-                return request[method]('/api/users/smirker')
+                return request[method]('/api/users/lurker')
                     .expect(405)
                     .then(({body}) => {
                         expect(body.msg).to.equal('method not allowed')
