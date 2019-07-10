@@ -1,11 +1,16 @@
 const express = require("express");
 const usersRouter = express.Router();
-const { sendUsersById } = require('../MVC/controllers/users')
-const { handle405error } = require('../errors')
+const { sendUsersByUsername, createUser } = require("../MVC/controllers/users");
+const { handle405error } = require("../errors");
 
 usersRouter
-    .route('/:username')
-    .get(sendUsersById)
-    .all(handle405error)
+  .route("/")
+  .post(createUser)
+  .all(handle405error);
+
+usersRouter
+  .route("/:username")
+  .get(sendUsersByUsername)
+  .all(handle405error);
 
 module.exports = { usersRouter };

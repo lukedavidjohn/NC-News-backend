@@ -23,8 +23,8 @@ describe('/api', () => {
             .get('/api')
             .then(({body}) => {
                 expect(body).to.contain.keys('endpoints')
-            })
     })
+})
     it('returns 405 for all other methods', () => {
         const invalidMethods = ['delete', 'patch', 'post', 'put'];
         const methodPromises = invalidMethods.map(method => {
@@ -51,8 +51,74 @@ describe('/api', () => {
                     expect(body.topics[0]).to.contain.keys('slug', 'description');
             })
         })
+        it('POST topic - returns status 201', () => {
+            return request.post('/api/topics')
+                .send({
+                    slug: 'pellets',
+                    description: 'slug pellets'
+                })
+                .expect(201)
+            })
+        it('POST topic - returns topic-object with expected keys', () => {
+            return request.post('/api/topics')
+                .send({
+                    slug: 'pellets',
+                    description: 'slug pellets'
+                })
+                .then(({body})=> {
+                    expect(body.topic).to.contain.keys('slug', 'description')
+                })
+        })
+        it('POST topic - returns status 201 if passed post content with non-existing column', () => {
+            return request
+                .post('/api/topics')
+                .send({
+                    slug: 'pellets',
+                    description: 'slug pellets',
+                    goodness: 0
+                })
+                .expect(201)
+        })
+        it('POST topic - does not return non-existing column', () => {
+            return request
+                .post('/api/topics')
+                .send({
+                    slug: 'pellets',
+                    description: 'slug pellets',
+                    goodness: 0
+                })
+                .then(({body}) => {
+                    expect(body.topic).to.not.contain.keys('goodness')
+                })
+        })
+        it('POST topic - returns status 400 if passed no post content', () => {
+            return request
+                .post('/api/topics')
+                .send({})
+                .expect(400)
+        })
+        it('POST topic - returns status 400 if passed post content with required column missing', () => {
+            return request
+                .post('/api/topics')
+                .send({
+                    slug: 'here is some text, here is some text'
+                })
+                .expect(400)
+        })
+        it('POST topic - returns status 422 if passed non-unique slug', () => {
+            return request
+            .post('/api/topics')
+            .send({
+                slug: 'paper',
+                description: 'rock scissors'
+            })
+            .expect(422)
+            .then(({body: {msg}}) => {
+                expect(msg).to.equal('unprocessable entity')
+            })    
+        })
         it('returns 405 for all other methods', () => {
-            const invalidMethods = ['delete', 'patch', 'post', 'put'];
+            const invalidMethods = ['delete', 'patch', 'put'];
             const methodPromises = invalidMethods.map(method => {
                 return request[method]('/api/topics')
                     .expect(405)
@@ -64,6 +130,84 @@ describe('/api', () => {
         })
     })
     describe('/users', () => {
+        // GET users
+        it('POST user - returns status 201', () => {
+            return request
+                .post('/api/users')
+                .send({
+                    username: 'pellets',
+                    avatar_url: 'slug pellets',
+                    name: 'The Tick'
+                })
+                .expect(201)
+            })
+        it('POST user - returns user-object with expected keys', () => {
+            return request.post('/api/users')
+                .send({
+                    username: 'pellets',
+                    avatar_url: 'slug pellets',
+                    name: 'The Tick'
+                })
+                .then(({body})=> {
+                    expect(body.user).to.contain.keys('username', 'avatar_url', 'name')
+                })
+        })
+        it('POST user - returns status 201 if passed post content with non-existing column', () => {
+            return request
+                .post('/api/users')
+                .send({
+                    username: 'pellets',
+                    avatar_url: 'slug pellets',
+                    name: 'The Tick',
+                    goodness: 0
+                })
+                .expect(201)
+        })
+        it('POST user - does not return non-existing column', () => {
+            return request
+                .post('/api/users')
+                .send({
+                    username: 'pellets',
+                    avatar_url: 'slug pellets',
+                    name: 'The Tick',
+                    goodness: 0
+                })
+                .then(({body}) => {
+                    expect(body.user).to.not.contain.keys('goodness')
+                })
+        })
+        it('POST user - returns status 400 if passed no post content', () => {
+            return request
+                .post('/api/users')
+                .send({})
+                .expect(400)
+        })
+        it('POST user - returns status 400 if passed post content with required column missing', () => {
+            return request
+                .post('/api/users')
+                .send({
+                    username: 'pellets',
+                    avatar_url: 'slug pellets'
+                })
+                .expect(400)
+        })
+        it('POST user - returns status 422 if passed non-unique username', () => {
+            return request
+            .post('/api/users')
+            .send({
+                username: 'lurker',
+                avatar_url: 'slug pellets',
+                name: 'The Tick'
+            })
+            .expect(422)
+            .then(({body: {msg}}) => {
+                expect(msg).to.equal('unprocessable entity')
+            })  
+        })
+    })
+
+
+    describe('/users/:username', () => {
         it('GET users by username - returns status 200', () => {
             return request
                 .get('/api/users/lurker')
@@ -85,7 +229,7 @@ describe('/api', () => {
                 })
         })
         it('returns 405 for all other methods', () => {
-            const invalidMethods = ['delete', 'patch', 'post', 'put'];
+            const invalidMethods = ['delete', 'patch', 'put'];
             const methodPromises = invalidMethods.map(method => {
                 return request[method]('/api/users/smirker')
                     .expect(405)
@@ -221,8 +365,78 @@ describe('/api', () => {
                     expect(body.msg).to.equal('not found')
                 })
         })
+        it('POST article - returns status 201', () => {
+            return request
+                .post('/api/articles')
+                .send({
+                    title: 'why coding',
+                    body: 'because coding',
+                    topic: 'paper',
+                    author: 'lurker'
+                })
+                .expect(201)
+        })
+        it('POST article - returns article-object with expected keys', () => {
+            return request
+                .post('/api/articles')
+                .send({
+                    title: 'why coding',
+                    body: 'because coding',
+                    topic: 'paper',
+                    author: 'lurker'
+                })
+                .then(({body}) => {
+                    expect(body.article.article_id).to.equal(13)
+                    expect(body.article.title).to.equal('why coding')
+                    expect(body.article.body).to.equal('because coding')
+                    expect(body.article.votes).to.equal(0)
+                    expect(body.article.topic).to.equal('paper')
+                    expect(body.article.author).to.equal('lurker')
+                    expect(body.article.created_at).to.not.be.null
+                })
+        })
+        it('POST article - returns status 400 if passed no post content', () => {
+            return request
+                .post('/api/articles')
+                .send({})
+                .expect(400)
+        })
+        it('POST article - returns status 400 if passed post content with required column missing', () => {
+            return request
+                .post('/api/articles')
+                .send({
+                    body: 'here is some text, here is some text'
+                })
+                .expect(400)
+        })
+        it('POST article - returns status 201 if passed post content with non-existing column', () => {
+            return request
+                .post('/api/articles')
+                .send({
+                    title: 'why coding',
+                    body: 'because coding',
+                    topic: 'paper',
+                    author: 'lurker',
+                    goodness: 0
+                })
+                .expect(201)
+        })
+        it('POST article - does not return non-existing column', () => {
+            return request
+                .post('/api/articles')
+                .send({
+                    title: 'why coding',
+                    body: 'because coding',
+                    topic: 'paper',
+                    author: 'lurker',
+                    goodness: 0
+                })
+                .then(({body}) => {
+                    expect(body.article).to.not.contain.keys('goodness')
+                })
+        })
         it('returns 405 for all other methods', () => {
-            const invalidMethods = ['delete', 'patch', 'post', 'put'];
+            const invalidMethods = ['delete', 'patch', 'put'];
             const methodPromises = invalidMethods.map(method => {
                 return request[method]('/api/articles')
                     .expect(405)
@@ -315,8 +529,18 @@ describe('/api', () => {
                     expect(body.msg).to.equal('not found')
                 })
         })
+        it('DELETE article by article_id - returns status 204', () => {
+            return request
+                .delete('/api/articles/1')
+                .expect(204)
+        })
+        it('DELETE article by article_id - returns status 404 when passed valid but non-existing article_id', () => {
+            return request
+                .delete('/api/articles/9999')
+                .expect(404)
+        })
         it('returns 405 for all other methods', () => {
-            const invalidMethods = ['delete', 'post', 'put'];
+            const invalidMethods = [ 'post', 'put'];
             const methodPromises = invalidMethods.map(method => {
                 return request[method]('/api/articles/1')
                     .expect(405)
@@ -327,7 +551,7 @@ describe('/api', () => {
             return Promise.all(methodPromises)
         })
     })
-    describe.only('/articles/:article_id/comments', () => {
+    describe('/articles/:article_id/comments', () => {
         it('GET comments by article_id - returns status 200', () => {
             return request
                 .get('/api/articles/1/comments')
@@ -374,7 +598,7 @@ describe('/api', () => {
                 .get('/api/articles/1/comments')
                 .then(({body}) => {
                     expect(body.comments.length).to.equal(10)
-                }) //13
+                })
         })
         it('GET comments by article_id - response limit can be determined by query', () => {
             return request
@@ -456,6 +680,28 @@ describe('/api', () => {
                 expect(body.comment.body).to.equal('here is some text, here is some text')
                 })
         })
+        it('POST comment by article_id - returns status 201 if passed post content with non-existing column', () => {
+            return request
+                .post('/api/articles/1/comments')
+                .send({
+                    username: 'butter_bridge',
+                    body: 'here is some text, here is some text',
+                    goodness: 0
+                })
+                .expect(201)
+        })
+        it('POST comment by article_id - does not return non-existing column', () => {
+            return request
+                .post('/api/articles/1/comments')
+                .send({
+                    username: 'butter_bridge',
+                    body: 'here is some text, here is some text',
+                    goodness: 0
+                })
+                .then(({body}) => {
+                    expect(body.comment).to.not.contain.keys('goodness')
+                })
+        })
         it('POST comment by article_id - returns status 400 if passed invalid article_id', () => {
             return request
                 .post('/api/articles/cheese/comments')
@@ -476,16 +722,6 @@ describe('/api', () => {
                 .post('/api/articles/cheese/comments')
                 .send({
                     body: 'here is some text, here is some text'
-                })
-                .expect(400)
-        })
-        it('POST comment by article_id - returns status 400 if passed post content with non-existing column', () => {
-            return request
-                .post('/api/articles/cheese/comments')
-                .send({
-                    username: 'butter_bridge',
-                    body: 'here is some text, here is some text',
-                    goodness: 0
                 })
                 .expect(400)
         })
