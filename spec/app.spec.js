@@ -130,7 +130,6 @@ describe('/api', () => {
         })
     })
     describe('/users', () => {
-        // GET users
         it('GET users - returns status 200', () => {
             return request
                 .get('/api/users')
@@ -759,7 +758,7 @@ describe('/api', () => {
             return Promise.all(methodPromises)
         })
     })
-    describe('/comments', () => {
+    describe('/comments/:comment_id', () => {
         it('PATCH comment by comment_id - returns status 200', () => {
             return request
                 .patch('/api/comments/1')
