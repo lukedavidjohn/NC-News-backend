@@ -19,10 +19,12 @@ exports.sendArticles = (req, res, next) => {
   if (p === undefined) p = 1;
   fetchArticles(sort_by, order, author, topic, limit, p)
     .then(articles => {
-      if (!Object.keys(articles).length) {
+      if (articles[0] === 0 || articles[1].length === 0) {
         return Promise.reject({ status: 404, msg: "not found" });
       } else {
-        res.status(200).send({ articles });
+        res
+          .status(200)
+          .send({ article_count: articles[0], articles: articles[1] });
       }
     })
     .catch(next);

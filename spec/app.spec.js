@@ -249,10 +249,10 @@ describe('/api', () => {
             return Promise.all(methodPromises)
         })
     })
-    describe('/articles', () => {
+    describe.only('/articles', () => {
         it('GET articles - returns status 200', () => {
             return request
-                .get('/api/articles')
+                .get('/api/articles?topic=mitch')
                 .expect(200)
         })
         it('GET articles - returns an array of article-objects with expected keys, with added comment_count column', () => {

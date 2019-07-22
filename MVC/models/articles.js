@@ -20,7 +20,15 @@ exports.fetchArticles = (
     sort_order === undefined
   ) {
     let offset = (page - 1) * limit_to;
-    return connection("articles")
+
+    const a = connection("articles")
+      .select("article_id")
+      .where("topic", "like", filter_topic)
+      .then(articles => {
+        return articles.length;
+      });
+
+    const b = connection("articles")
       .select("articles.*")
       .count({ comment_count: "articles.article_id" })
       .where("articles.author", "like", filter_author)
@@ -30,6 +38,8 @@ exports.fetchArticles = (
       .orderBy(sort_column || "articles.created_at", sort_order || "desc")
       .limit(limit_to)
       .offset(offset);
+
+    return Promise.all([a, b]);
   } else {
     return Promise.reject({ status: 400, msg: "bad request" });
   }
