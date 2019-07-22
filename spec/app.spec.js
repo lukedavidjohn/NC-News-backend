@@ -616,7 +616,7 @@ describe('/api', () => {
                     expect(body.comments.length).to.equal(5)
                 })
         })
-        it('GET articles - paginates results when number of responses exceeds limit', () => {
+        it('GET comments by article_id - paginates results when number of responses exceeds limit', () => {
             return request
                 .get('/api/articles/1/comments?p=2')
                     .then(({body}) => {
@@ -624,7 +624,7 @@ describe('/api', () => {
                         expect(body.comments[0].comment_id).to.equal(12)
                     })
         })
-        it('GET articles - paginates properly with non-default limit value', () => {
+        it('GET comments by article_id - paginates properly with non-default limit value', () => {
             return request
                 .get('/api/articles/1/comments?limit=5&p=3')
                 .then(({body}) => {
