@@ -55,7 +55,7 @@ npm run test
 To test utilities run:
 
 ```
-npm run test--utils
+npm run test-utils
 ```
 
 ## Author
