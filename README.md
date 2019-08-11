@@ -2,6 +2,8 @@
 
 A RESTful API for NC News - a Reddit-style news website where readers can comment and vote on stories on given topics.
 
+This project is hosted on [Heroku](https://ldjr-be-nc-news.herokuapp.com).  The front-end repository can be found [here](https://github.com/lukedavidjohn/NC-News-frontend).
+
 ## Getting Started
 
 These instructions will get you a copy of the NC News API up and running on your local machine.
