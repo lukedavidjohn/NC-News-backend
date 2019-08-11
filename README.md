@@ -26,7 +26,7 @@ Once you have Node.js set up on your machine, you will need to clone this reposi
 On the command line navigate to the parent directory where you would like to store the repository and run the following command:
 
 ```
-git clone https://github.com/lukedavidjohn/be-nc-news.git
+git clone https://github.com/lukedavidjohn/NC-News-backend.git
 ```
 
 Navigate into the directory on the command line then run the following command to install all of the dependencies from the package.json:
