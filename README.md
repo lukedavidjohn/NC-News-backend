@@ -1,4 +1,4 @@
-# Project Title
+# NC News (back-end)
 
 A RESTful API for NC News - a Reddit-style news website where readers can comment and vote on stories on given topics.
 
