@@ -16,12 +16,17 @@ exports.seed = function(knex, Promise) {
     })
     .then(() => {
       const topicsInsertions = knex("topics").insert(topicData);
-      let hashedUserData = [...userData];
-      let salt = bcrypt.genSaltSync(10);
-      hashedUserData.forEach((user, idx, arr) => {
-        arr[idx].password = bcrypt.hashSync(user.password, salt);
+      bcrypt.genSalt(10, function(err, salt) {
+        [...userData].forEach((user, idx, arr) => {
+          bcrypt.hash(user.password, salt, function(err, hash) {
+            user.password = hash;
+          });
+        });
       });
-      const usersInsertions = knex("users").insert(hashedUserData);
+      // hashedUserData.forEach((user, idx, arr) => {
+      //   arr[idx].password = bcrypt.hashSync(user.password, salt);
+      // });
+      const usersInsertions = knex("users").insert(userData);
       return Promise.all([topicsInsertions, usersInsertions]);
     })
     .then(() => {
