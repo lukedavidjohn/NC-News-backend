@@ -249,7 +249,7 @@ describe('/api', () => {
             return Promise.all(methodPromises)
         })
     })
-    describe.only('/articles', () => {
+    describe('/articles', () => {
         it('GET articles - returns status 200', () => {
             return request
                 .get('/api/articles?topic=mitch')
