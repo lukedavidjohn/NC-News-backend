@@ -11,10 +11,11 @@ exports.fetchUsersByUsername = ({ username }) => {
     .where({ username });
 };
 
-exports.postUser = ({ username, avatar_url, name }) => {
+exports.postUser = ({ username, password, avatar_url, name }) => {
   return connection("users")
     .insert({
       username,
+      password,
       avatar_url,
       name
     })

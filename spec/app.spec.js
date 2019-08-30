@@ -147,6 +147,7 @@ describe('/api', () => {
                 .post('/api/users')
                 .send({
                     username: 'pellets',
+                    password: 'password',
                     avatar_url: 'slug pellets',
                     name: 'The Tick'
                 })
@@ -156,11 +157,12 @@ describe('/api', () => {
             return request.post('/api/users')
                 .send({
                     username: 'pellets',
+                    password: 'password',
                     avatar_url: 'slug pellets',
                     name: 'The Tick'
                 })
                 .then(({body})=> {
-                    expect(body.user).to.contain.keys('username', 'avatar_url', 'name')
+                    expect(body.user).to.contain.keys('username', 'password', 'avatar_url', 'name')
                 })
         })
         it('POST user - returns status 201 if passed post content with non-existing column', () => {
@@ -168,6 +170,7 @@ describe('/api', () => {
                 .post('/api/users')
                 .send({
                     username: 'pellets',
+                    password: 'password',
                     avatar_url: 'slug pellets',
                     name: 'The Tick',
                     goodness: 0
@@ -179,6 +182,7 @@ describe('/api', () => {
                 .post('/api/users')
                 .send({
                     username: 'pellets',
+                    password: 'password',
                     avatar_url: 'slug pellets',
                     name: 'The Tick',
                     goodness: 0
@@ -207,6 +211,7 @@ describe('/api', () => {
             .post('/api/users')
             .send({
                 username: 'lurker',
+                password: 'password',
                 avatar_url: 'slug pellets',
                 name: 'The Tick'
             })
