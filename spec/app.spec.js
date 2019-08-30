@@ -5,6 +5,8 @@ const expect = chai.expect
 chai.use(require('chai-sorted'))
 const request = require("supertest")(app);
 const { connection } = require("../db/connection");
+const { KEY } = process.env
+const jwt = require("jsonwebtoken");
 
 describe('/api', () => {
     beforeEach(() => {
@@ -128,7 +130,7 @@ describe('/api', () => {
                 })
             return Promise.all(methodPromises)
         })
-    })
+    });
     describe('/users', () => {
         it('GET users - returns status 200', () => {
             return request
@@ -220,7 +222,7 @@ describe('/api', () => {
                 expect(msg).to.equal('unprocessable entity')
             })  
         })
-    })
+    });
     describe('/users/:username', () => {
         it('GET users by username - returns status 200', () => {
             return request
@@ -254,6 +256,28 @@ describe('/api', () => {
             return Promise.all(methodPromises)
         })
     })
+    describe('/users/authenticate', () => {
+        it('POST authentication details - returns status 201', () => {
+            return request
+                .post('/api/users/authenticate')
+                .send({
+                    username: 'butter_bridge',
+                    password: 'password'
+                })
+                .expect(201)
+        });
+        it('POST authentication details - returns authentication token', () => {
+            return request
+                .post('/api/users/authenticate')
+                .send({
+                    username: 'butter_bridge',
+                    password: 'password'
+                })
+                .then(({body}) => {
+                    expect(jwt.verify(body.token, KEY).username).to.equal("butter_bridge")
+                })
+        });
+    });
     describe('/articles', () => {
         it('GET articles - returns status 200', () => {
             return request

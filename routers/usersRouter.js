@@ -3,7 +3,8 @@ const usersRouter = express.Router();
 const {
   sendUsers,
   sendUsersByUsername,
-  createUser
+  createUser,
+  authenticateUser
 } = require("../MVC/controllers/users");
 const { handle405error } = require("../errors");
 
@@ -11,6 +12,11 @@ usersRouter
   .route("/")
   .get(sendUsers)
   .post(createUser)
+  .all(handle405error);
+
+usersRouter
+  .route("/authenticate")
+  .post(authenticateUser)
   .all(handle405error);
 
 usersRouter
