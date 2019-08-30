@@ -1,5 +1,3 @@
-// const app = require("./app");
-
 exports.handle400errors = (err, req, res, next) => {
   if (err.status === 400) {
     res.status(400).send(err);
