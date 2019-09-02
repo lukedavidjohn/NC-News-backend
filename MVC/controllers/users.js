@@ -33,8 +33,8 @@ exports.createUser = (req, res, next) => {
 
 exports.authenticateUser = (req, res, next) => {
   signUser(req.body)
-    .then(({ user, token }) => {
-      res.status(201).send({ user, token });
+    .then(({ token }) => {
+      res.status(201).send({ token });
     })
     .catch(next);
 };
