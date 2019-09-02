@@ -1,6 +1,8 @@
 exports.handle400errors = (err, req, res, next) => {
   if (err.status === 400) {
     res.status(400).send(err);
+  } else if (err.status === 401) {
+    res.status(401).send(err);
   } else if (err.status === 404) {
     res.status(404).send(err);
   } else if (err.status === 405) {
