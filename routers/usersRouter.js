@@ -15,11 +15,6 @@ usersRouter
   .all(handle405error);
 
 usersRouter
-  .route("/authenticate")
-  .post(authenticateUser)
-  .all(handle405error);
-
-usersRouter
   .route("/:username")
   .get(sendUsersByUsername)
   .all(handle405error);

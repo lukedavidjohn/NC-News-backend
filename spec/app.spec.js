@@ -9,12 +9,55 @@ const { KEY } = process.env
 const jwt = require("jsonwebtoken");
 
 describe('NC News REST API', () => {
-    beforeEach(() => {
-        return connection.seed.run();
-    })
     after(() => {
         return connection.destroy();
     })
+    beforeEach(() => {
+        return connection.seed.run();
+    });
+    describe('/authenticate', () => {
+        it('POST authentication details - returns status 201 and correct username upon jwt.verify', () => {
+            return request
+                .post('/api/authenticate')
+                .send({
+                    username: 'butter_bridge',
+                    password: 'password'
+                })
+                .expect(201)
+                .then(({body}) => {
+                    expect(jwt.verify(body.token, KEY).username).to.equal("butter_bridge")
+                })
+        });
+        it('POST authentication details - returns 401 when passed non-existing username', () => {
+            return request
+                .post('/api/authenticate')
+                .send({
+                    username: 'nutter_bridge',
+                    password: 'password'
+                })
+                .expect(401)
+        });
+        it('POST authentication details - returns 401 when passed invalid password', () => {
+            return request
+                .post('/api/authenticate')
+                .send({
+                    username: 'butter_bridge',
+                    password: 'gassword'
+                })
+                .expect(401)
+        });
+        it('returns 405 for all other methods', () => {
+            const invalidMethods = ['delete', 'get', 'patch', 'put'];
+            const methodPromises = invalidMethods.map(method => {
+                return request[method]('/api/authenticate')
+                    .expect(405)
+                    .then(({body}) => {
+                        expect(body.msg).to.equal('method not allowed')
+                    })
+                })
+            return Promise.all(methodPromises)
+        })
+    });
     describe('/api', () => {
         it('GET - returns status 200', () => {
             return request
@@ -39,7 +82,7 @@ describe('NC News REST API', () => {
                 })
             return Promise.all(methodPromises)
         })
-    })
+    });
     describe('/topics', () => {
         it('GET topics - returns status 200', () => {
             return request
@@ -258,28 +301,6 @@ describe('NC News REST API', () => {
             return Promise.all(methodPromises)
         })
     })
-    describe('/users/authenticate', () => {
-        it('POST authentication details - returns status 201', () => {
-            return request
-                .post('/api/users/authenticate')
-                .send({
-                    username: 'butter_bridge',
-                    password: 'password'
-                })
-                .expect(201)
-        });
-        it('POST authentication details - returns authentication token', () => {
-            return request
-                .post('/api/users/authenticate')
-                .send({
-                    username: 'butter_bridge',
-                    password: 'password'
-                })
-                .then(({body}) => {
-                    expect(jwt.verify(body.token, KEY).username).to.equal("butter_bridge")
-                })
-        });
-    });
     describe('/articles', () => {
         it('GET articles - returns status 200', () => {
             return request
