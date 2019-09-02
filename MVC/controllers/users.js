@@ -1,8 +1,7 @@
 const {
   fetchUsers,
   fetchUsersByUsername,
-  postUser,
-  signUser
+  postUser
 } = require("../models/users");
 
 exports.sendUsers = (req, res, next) => {
@@ -27,14 +26,6 @@ exports.createUser = (req, res, next) => {
   postUser(req.body)
     .then(users => {
       res.status(201).send({ user: users[0] });
-    })
-    .catch(next);
-};
-
-exports.authenticateUser = (req, res, next) => {
-  signUser(req.body)
-    .then(({ token }) => {
-      res.status(201).send({ token });
     })
     .catch(next);
 };
