@@ -8,35 +8,37 @@ const { connection } = require("../db/connection");
 const { KEY } = process.env
 const jwt = require("jsonwebtoken");
 
-describe('/api', () => {
+describe('NC News REST API', () => {
     beforeEach(() => {
         return connection.seed.run();
     })
     after(() => {
-        connection.destroy();
+        return connection.destroy();
     })
-    it('GET - returns status 200', () => {
-        return request
-            .get('/api')
-            .expect(200)
-    })
-    it('GET - responds with a JSON of all available endpoints', () => {
-        return request
-            .get('/api')
-            .then(({body}) => {
-                expect(body).to.contain.keys('endpoints')
-    })
-})
-    it('returns 405 for all other methods', () => {
-        const invalidMethods = ['delete', 'patch', 'post', 'put'];
-        const methodPromises = invalidMethods.map(method => {
-            return request[method]('/api')
-                .expect(405)
+    describe('/api', () => {
+        it('GET - returns status 200', () => {
+            return request
+                .get('/api')
+                .expect(200)
+        })
+        it('GET - responds with a JSON of all available endpoints', () => {
+            return request
+                .get('/api')
                 .then(({body}) => {
-                    expect(body.msg).to.equal('method not allowed')
-                })
+                    expect(body).to.contain.keys('endpoints')
             })
-        return Promise.all(methodPromises)
+        })
+        it('returns 405 for all other methods', () => {
+            const invalidMethods = ['delete', 'patch', 'post', 'put'];
+            const methodPromises = invalidMethods.map(method => {
+                return request[method]('/api')
+                    .expect(405)
+                    .then(({body}) => {
+                        expect(body.msg).to.equal('method not allowed')
+                    })
+                })
+            return Promise.all(methodPromises)
+        })
     })
     describe('/topics', () => {
         it('GET topics - returns status 200', () => {
