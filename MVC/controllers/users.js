@@ -11,7 +11,8 @@ exports.sendUsers = (req, res, next) => {
 };
 
 exports.sendUserByUsername = (req, res, next) => {
-  fetchUserByUsername(req.params)
+  const { username } = req.params;
+  fetchUserByUsername(username)
     .then(user => {
       if (!user) {
         return Promise.reject({ status: 404, msg: "not found" });

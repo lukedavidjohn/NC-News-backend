@@ -4,14 +4,15 @@ const jwt = require("jsonwebtoken");
 const { KEY } = process.env;
 
 exports.authenticateUser = (req, res, next) => {
-  fetchUserByUsername(req.body)
+  const { username, password } = req.body;
+  fetchUserByUsername(username)
     .then(user => {
       if (!user) {
         return Promise.reject({
           status: 401,
           msg: "no user found with that username"
         });
-      } else return bcrypt.compareSync(req.body.password, user.password);
+      } else return bcrypt.compareSync(password, user.password);
     })
     .then(passwordMatch => {
       if (!passwordMatch) {
@@ -19,7 +20,7 @@ exports.authenticateUser = (req, res, next) => {
           status: 401,
           msg: "incorrect password"
         });
-      } else return jwt.sign({ username: req.body.username }, KEY);
+      } else return jwt.sign({ username: username }, KEY);
     })
     .then(token => {
       res.status(201).send({ token });
