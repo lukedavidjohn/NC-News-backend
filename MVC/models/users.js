@@ -4,7 +4,7 @@ exports.fetchUsers = () => {
   return connection("users").select("*");
 };
 
-exports.fetchUsersByUsername = ({ username }) => {
+exports.fetchUserByUsername = ({ username }) => {
   return connection
     .first("*")
     .from("users")

@@ -1,6 +1,6 @@
 const {
   fetchUsers,
-  fetchUsersByUsername,
+  fetchUserByUsername,
   postUser
 } = require("../models/users");
 
@@ -10,13 +10,13 @@ exports.sendUsers = (req, res, next) => {
   });
 };
 
-exports.sendUsersByUsername = (req, res, next) => {
-  fetchUsersByUsername(req.params)
-    .then(users => {
-      if (users.length === 0) {
+exports.sendUserByUsername = (req, res, next) => {
+  fetchUserByUsername(req.params)
+    .then(user => {
+      if (!user) {
         return Promise.reject({ status: 404, msg: "not found" });
       } else {
-        res.status(200).send({ user: users[0] });
+        res.status(200).send({ user });
       }
     })
     .catch(next);

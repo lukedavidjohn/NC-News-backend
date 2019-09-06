@@ -1,10 +1,10 @@
-const { fetchUsersByUsername } = require("../models/users");
+const { fetchUserByUsername } = require("../models/users");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { KEY } = process.env;
 
 exports.authenticateUser = (req, res, next) => {
-  fetchUsersByUsername(req.body)
+  fetchUserByUsername(req.body)
     .then(user => {
       if (!user) {
         return Promise.reject({
