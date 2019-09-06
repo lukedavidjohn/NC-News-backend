@@ -1,6 +1,6 @@
 const express = require("express");
 const authRouter = express.Router();
-const { authenticateUser } = require("../MVC/controllers/users");
+const { authenticateUser } = require("../MVC/controllers/authentication");
 const { handle405error } = require("../errors");
 
 authRouter
