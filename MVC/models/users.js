@@ -6,7 +6,7 @@ exports.fetchUsers = () => {
 
 exports.fetchUsersByUsername = ({ username }) => {
   return connection
-    .select("*")
+    .first("*")
     .from("users")
     .where({ username });
 };
