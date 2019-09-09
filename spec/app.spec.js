@@ -5,37 +5,84 @@ const expect = chai.expect
 chai.use(require('chai-sorted'))
 const request = require("supertest")(app);
 const { connection } = require("../db/connection");
+const { KEY } = process.env
+const jwt = require("jsonwebtoken");
 
-describe('/api', () => {
+describe('NC News REST API', () => {
+    after(() => {
+        return connection.destroy();
+    })
     beforeEach(() => {
         return connection.seed.run();
-    })
-    after(() => {
-        connection.destroy();
-    })
-    it('GET - returns status 200', () => {
-        return request
-            .get('/api')
-            .expect(200)
-    })
-    it('GET - responds with a JSON of all available endpoints', () => {
-        return request
-            .get('/api')
-            .then(({body}) => {
-                expect(body).to.contain.keys('endpoints')
-    })
-})
-    it('returns 405 for all other methods', () => {
-        const invalidMethods = ['delete', 'patch', 'post', 'put'];
-        const methodPromises = invalidMethods.map(method => {
-            return request[method]('/api')
-                .expect(405)
-                .then(({body}) => {
-                    expect(body.msg).to.equal('method not allowed')
+    });
+    describe('/authenticate', () => {
+        it('POST authentication details - returns status 201 and correct username upon jwt.verify', () => {
+            return request
+                .post('/api/authenticate')
+                .send({
+                    username: 'butter_bridge',
+                    password: 'password'
                 })
+                .expect(201)
+                .then(({body}) => {
+                    expect(jwt.verify(body.token, KEY).username).to.equal("butter_bridge")
+                })
+        });
+        it('POST authentication details - returns 401 when passed non-existing username', () => {
+            return request
+                .post('/api/authenticate')
+                .send({
+                    username: 'nutter_bridge',
+                    password: 'password'
+                })
+                .expect(401)
+        });
+        it('POST authentication details - returns 401 when passed invalid password', () => {
+            return request
+                .post('/api/authenticate')
+                .send({
+                    username: 'butter_bridge',
+                    password: 'gassword'
+                })
+                .expect(401)
+        });
+        it('returns 405 for all other methods', () => {
+            const invalidMethods = ['delete', 'get', 'patch', 'put'];
+            const methodPromises = invalidMethods.map(method => {
+                return request[method]('/api/authenticate')
+                    .expect(405)
+                    .then(({body}) => {
+                        expect(body.msg).to.equal('method not allowed')
+                    })
+                })
+            return Promise.all(methodPromises)
+        })
+    });
+    describe('/api', () => {
+        it('GET - returns status 200', () => {
+            return request
+                .get('/api')
+                .expect(200)
+        })
+        it('GET - responds with a JSON of all available endpoints', () => {
+            return request
+                .get('/api')
+                .then(({body}) => {
+                    expect(body).to.contain.keys('endpoints')
             })
-        return Promise.all(methodPromises)
-    })
+        })
+        it('returns 405 for all other methods', () => {
+            const invalidMethods = ['delete', 'patch', 'post', 'put'];
+            const methodPromises = invalidMethods.map(method => {
+                return request[method]('/api')
+                    .expect(405)
+                    .then(({body}) => {
+                        expect(body.msg).to.equal('method not allowed')
+                    })
+                })
+            return Promise.all(methodPromises)
+        })
+    });
     describe('/topics', () => {
         it('GET topics - returns status 200', () => {
             return request
@@ -128,7 +175,7 @@ describe('/api', () => {
                 })
             return Promise.all(methodPromises)
         })
-    })
+    });
     describe('/users', () => {
         it('GET users - returns status 200', () => {
             return request
@@ -147,6 +194,7 @@ describe('/api', () => {
                 .post('/api/users')
                 .send({
                     username: 'pellets',
+                    password: 'password',
                     avatar_url: 'slug pellets',
                     name: 'The Tick'
                 })
@@ -156,11 +204,12 @@ describe('/api', () => {
             return request.post('/api/users')
                 .send({
                     username: 'pellets',
+                    password: 'password',
                     avatar_url: 'slug pellets',
                     name: 'The Tick'
                 })
                 .then(({body})=> {
-                    expect(body.user).to.contain.keys('username', 'avatar_url', 'name')
+                    expect(body.user).to.contain.keys('username', 'password', 'avatar_url', 'name')
                 })
         })
         it('POST user - returns status 201 if passed post content with non-existing column', () => {
@@ -168,6 +217,7 @@ describe('/api', () => {
                 .post('/api/users')
                 .send({
                     username: 'pellets',
+                    password: 'password',
                     avatar_url: 'slug pellets',
                     name: 'The Tick',
                     goodness: 0
@@ -179,6 +229,7 @@ describe('/api', () => {
                 .post('/api/users')
                 .send({
                     username: 'pellets',
+                    password: 'password',
                     avatar_url: 'slug pellets',
                     name: 'The Tick',
                     goodness: 0
@@ -207,6 +258,7 @@ describe('/api', () => {
             .post('/api/users')
             .send({
                 username: 'lurker',
+                password: 'password',
                 avatar_url: 'slug pellets',
                 name: 'The Tick'
             })
@@ -215,7 +267,7 @@ describe('/api', () => {
                 expect(msg).to.equal('unprocessable entity')
             })  
         })
-    })
+    });
     describe('/users/:username', () => {
         it('GET users by username - returns status 200', () => {
             return request
@@ -249,7 +301,7 @@ describe('/api', () => {
             return Promise.all(methodPromises)
         })
     })
-    describe.only('/articles', () => {
+    describe('/articles', () => {
         it('GET articles - returns status 200', () => {
             return request
                 .get('/api/articles?topic=mitch')

@@ -1,8 +1,8 @@
-const app = require("./app");
-
 exports.handle400errors = (err, req, res, next) => {
   if (err.status === 400) {
     res.status(400).send(err);
+  } else if (err.status === 401) {
+    res.status(401).send(err);
   } else if (err.status === 404) {
     res.status(404).send(err);
   } else if (err.status === 405) {
@@ -30,6 +30,5 @@ exports.handle405error = (req, res, next) => {
 };
 
 exports.handle500errors = (err, req, res, next) => {
-  console.log(err);
   res.status(500).send({ msg: "Internal Server Error" });
 };

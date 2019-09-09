@@ -2,7 +2,7 @@ const express = require("express");
 const usersRouter = express.Router();
 const {
   sendUsers,
-  sendUsersByUsername,
+  sendUserByUsername,
   createUser
 } = require("../MVC/controllers/users");
 const { handle405error } = require("../errors");
@@ -15,7 +15,7 @@ usersRouter
 
 usersRouter
   .route("/:username")
-  .get(sendUsersByUsername)
+  .get(sendUserByUsername)
   .all(handle405error);
 
 module.exports = { usersRouter };

@@ -4,17 +4,18 @@ exports.fetchUsers = () => {
   return connection("users").select("*");
 };
 
-exports.fetchUsersByUsername = ({ username }) => {
+exports.fetchUserByUsername = username => {
   return connection
-    .select("*")
+    .first("*")
     .from("users")
     .where({ username });
 };
 
-exports.postUser = ({ username, avatar_url, name }) => {
+exports.postUser = ({ username, password, avatar_url, name }) => {
   return connection("users")
     .insert({
       username,
+      password,
       avatar_url,
       name
     })
