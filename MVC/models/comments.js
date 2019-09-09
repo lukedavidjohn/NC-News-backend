@@ -2,7 +2,7 @@ const { connection } = require("../../db/connection");
 
 exports.checkCommentIdExists = comment_id => {
   return connection("comments")
-    .select("comment_id")
+    .first("comment_id")
     .where({ comment_id });
 };
 

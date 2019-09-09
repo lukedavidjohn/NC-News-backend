@@ -53,8 +53,8 @@ exports.updateCommentById = (req, res, next) => {
 exports.removeCommentById = (req, res, next) => {
   const { comment_id } = req.params;
   checkCommentIdExists(comment_id)
-    .then(comments => {
-      if (comments.length) {
+    .then(comment => {
+      if (comment) {
         deleteCommentById(comment_id)
           .then(() => {
             res.sendStatus(204);
