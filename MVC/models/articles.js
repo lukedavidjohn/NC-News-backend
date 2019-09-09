@@ -58,7 +58,7 @@ exports.postArticle = ({ title, body, topic, author }) => {
 
 exports.fetchArticleById = ({ article_id }) => {
   return connection
-    .select("articles.*")
+    .first("articles.*")
     .count({ comment_count: "articles.article_id" })
     .from("articles")
     .leftJoin("comments", "comments.article_id", "=", "articles.article_id")
@@ -66,19 +66,13 @@ exports.fetchArticleById = ({ article_id }) => {
     .groupBy("articles.article_id");
 };
 
-exports.patchArticleById = (update_id, update_value) => {
-  if (!update_value) {
-    return connection("articles")
-      .select("*")
-      .where({ article_id: update_id });
-  } else {
-    return connection("articles")
-      .where({ article_id: update_id })
-      .increment({
-        votes: update_value
-      })
-      .returning("*");
-  }
+exports.patchArticleById = (update_id, update_value = 0) => {
+  return connection("articles")
+    .where({ article_id: update_id })
+    .increment({
+      votes: update_value
+    })
+    .returning("*");
 };
 
 exports.deleteArticleById = article_id => {

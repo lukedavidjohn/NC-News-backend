@@ -40,11 +40,11 @@ exports.createArticle = (req, res, next) => {
 
 exports.sendArticleById = (req, res, next) => {
   fetchArticleById(req.params)
-    .then(articles => {
-      if (articles.length === 0) {
-        return Promise.reject({ status: 404, msg: "not found" });
+    .then(article => {
+      if (article) {
+        res.status(200).send({ article });
       } else {
-        res.status(200).send({ article: articles[0] });
+        return Promise.reject({ status: 404, msg: "not found" });
       }
     })
     .catch(next);
@@ -55,14 +55,14 @@ exports.updateArticleById = (req, res, next) => {
   const { inc_votes } = req.body;
   patchArticleById(article_id, inc_votes)
     .then(articles => {
-      if (articles.length === 0) {
-        return Promise.reject({ status: 404, msg: "not found" });
-      } else {
+      if (articles[0]) {
         return fetchArticleById({ article_id: articles[0].article_id });
+      } else {
+        return Promise.reject({ status: 404, msg: "not found" });
       }
     })
-    .then(articles => {
-      res.status(200).send({ article: articles[0] });
+    .then(article => {
+      res.status(200).send({ article });
     })
     .catch(next);
 };
