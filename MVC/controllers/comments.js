@@ -14,8 +14,8 @@ exports.sendCommentsByArticleId = (req, res, next) => {
   if (order !== undefined) order = order.toLowerCase();
   if (limit === undefined) limit = 10;
   checkArticleIdExists(article_id)
-    .then(articles => {
-      if (articles.length) {
+    .then(article => {
+      if (article) {
         fetchCommentsByArticleId(article_id, sort_by, order, limit, p)
           .then(comments => {
             res.status(200).send({ comments });

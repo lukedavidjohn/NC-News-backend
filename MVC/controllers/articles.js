@@ -70,8 +70,8 @@ exports.updateArticleById = (req, res, next) => {
 exports.removeArticleById = (req, res, next) => {
   const { article_id } = req.params;
   checkArticleIdExists(article_id)
-    .then(articles => {
-      if (articles.length) {
+    .then(article => {
+      if (article) {
         deleteArticleById(article_id)
           .then(() => {
             res.sendStatus(204);

@@ -2,7 +2,7 @@ const { connection } = require("../../db/connection");
 
 exports.checkArticleIdExists = article_id => {
   return connection("articles")
-    .select("article_id")
+    .first("article_id")
     .where({ article_id });
 };
 
