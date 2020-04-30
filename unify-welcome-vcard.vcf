@@ -1,0 +1,14 @@
+BEGIN:VCARD
+VERSION:3.0
+FN;CHARSET=UTF-8:
+N;CHARSET=UTF-8:;;;;
+NICKNAME;CHARSET=UTF-8:Tick
+EMAIL;CHARSET=UTF-8;type=HOME,INTERNET:operations@crispthinking.com
+TEL;TYPE=CELL:+447380308001
+LABEL;CHARSET=UTF-8;TYPE=HOME:Tick
+ADR;CHARSET=UTF-8;TYPE=HOME:;;Central Square\, Wellington Street;Leeds;West Yorkshire;LS1 4DL;United Kingdom
+ROLE;CHARSET=UTF-8:Check your facts
+ORG;CHARSET=UTF-8:Tick
+URL;type=WORK;CHARSET=UTF-8:https://www.jointick.com/jensenjensen/
+REV:2020-04-30T08:16:59.811Z
+END:VCARD
